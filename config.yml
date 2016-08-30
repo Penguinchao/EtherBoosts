@@ -1,0 +1,34 @@
+#Database
+mysqlHostName: localhost
+mysqlPort: 3306
+mysqlUsername: root
+mysqlPassword:
+mysqlDatabase: etherboosts
+#EXP Modifier
+double-exp-enabled: false
+double-exp-modifier: 2
+#Kits
+kits:
+  basic:
+    cooldown: 60
+    items:
+        stonesword:
+          id: 272
+          data: 0
+          count: 1
+        stonespade:
+          id: 273
+          data: 0
+          count: 1
+        stonepick:
+          id: 274
+          data: 0
+          count: 1
+        stoneaxe:
+          id: 275
+          data: 0
+          count: 1
+        bread:
+          id: 297
+          data: 0
+          count: 16

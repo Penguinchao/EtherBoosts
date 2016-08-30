@@ -1,0 +1,12 @@
+main: com.penguinchao.etherboosts.EtherBoosts
+version: 1.0
+name: EtherBoosts
+author: Penguinchao
+commands:
+    doublexp:
+        description: Enable or disable double XP.
+    kit:
+        description: Access kit utility. /kit for help
+permissions:
+    etherboosts.kit.basic: #Access to the kit with id "basic"
+        default: op
