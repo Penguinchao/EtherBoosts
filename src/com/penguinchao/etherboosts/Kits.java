@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 public class Kits {
 	private EtherBoosts main;
 	private Connection connection;
+        private boolean couldConnect;
 	public Kits(EtherBoosts passedMain){
 		main = passedMain;
 		establishConnection();
@@ -34,12 +37,17 @@ public class Kits {
 		String dburl = "jdbc:mysql://" + mysqlHostName + ":" + mysqlPort + "/" + mysqlDatabase;
 		try{
 			connection = DriverManager.getConnection(dburl, mysqlUsername, mysqlPassword);
+                        couldConnect = true;
 		}catch(Exception exception){
 			main.getLogger().info("[ERROR] Could not connect to the database -- disabling EtherBoosts");
 			Bukkit.getPluginManager().disablePlugin(main);
+                        couldConnect = false;
 		}
 	}
 	private void checkTables(){
+                if(!couldConnect){
+                    return;
+                }
 		String createQuery = "CREATE TABLE IF NOT EXISTS `etherboosts_kits` ( `player` VARCHAR(36) NOT NULL , `kitname` VARCHAR(200) NOT NULL , `readytime` VARCHAR(1000) NOT NULL ) ENGINE = InnoDB; ";
 		try{
 			java.sql.PreparedStatement sql = connection.prepareStatement(createQuery);
@@ -49,6 +57,19 @@ public class Kits {
 			e.printStackTrace();
 		}
 	}
+        private void checkConnection(){
+            if(!couldConnect){
+                return;
+            }
+            try {
+                if(connection.isClosed()){
+                    main.getLogger().info("Connection was closed. Reopening it.");
+                    establishConnection();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Kits.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 	protected static void showHelp(Player player){
 		player.sendMessage(ChatColor.YELLOW+"-- /kit --");
 		player.sendMessage(ChatColor.YELLOW+"/kit "+ChatColor.GREEN+"List the kits that you have available");
@@ -107,6 +128,7 @@ public class Kits {
 	}
 	protected boolean isKitReady(Player player, String kitName){
 		//Returns true if the time is past the minimim time for the kit to be ready
+                checkConnection();
 		UUID uuid = player.getUniqueId();
 		Timestamp timeStamp = new Timestamp(new Date().getTime());
 		long currentTime = timeStamp.getTime();
@@ -143,6 +165,7 @@ public class Kits {
 	}
 	private void resetKitTime(Player player, String kitName){
 		//Goes in database and sets the kit time to the max wait time
+                checkConnection();
 		UUID uuid = player.getUniqueId();
 		Timestamp timeStamp = new Timestamp( new Date().getTime() );
 		long currentTime = timeStamp.getTime();
